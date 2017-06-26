@@ -7,9 +7,10 @@ server {
 }
 
 {{ range $host, $containers := groupByMulti $ "Env.VIRTUAL_HOST" "," }}
-upstream {{ $host }} {
 
 {{ range $index, $value := $containers }}
+
+upstream {{$value.Name}} {
 
 	{{ $addrLen := len $value.Addresses }}
 	{{ $network := index $value.Networks 0 }}
@@ -50,8 +51,11 @@ server {
 	error_log /proc/self/fd/2;
 	access_log /proc/self/fd/1;
 
-	location / {
-		proxy_pass http://{{ trim $host }};
+{{ range $index, $value := $containers }}
+
+	location /{{ $value.Env.VIRTUAL_PATH }}/ {
+		proxy_pass http://{{$value.Name}}/;
+		proxy_redirect http://{{ $host }}/{{ $value.Env.VIRTUAL_PATH }}/ /;
 		proxy_set_header Host $http_host;
 		proxy_set_header X-Real-IP $remote_addr;
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -60,6 +64,13 @@ server {
 		# HTTP 1.1 support
 		proxy_http_version 1.1;
 		proxy_set_header Connection "";
+
+		#Sockets
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "upgrade";
 	}
+	
+{{ end }}
+
 }
 {{ end }}
