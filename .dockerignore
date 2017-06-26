@@ -2,3 +2,4 @@
 docker-gen
 dist
 *.gz
+tmp
