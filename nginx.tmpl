@@ -1,12 +1,10 @@
-server {
-	listen 80 default_server;
-	server_name _; # This is just an invalid value which will never trigger on a real hostname.
-	error_log /proc/self/fd/2;
-	access_log /proc/self/fd/1;
-	return 503;
+##websocket support
+map $http_upgrade $connection_upgrade {
+	default upgrade;
+	''      close;
 }
-
-{{ range $host, $containers := groupByMulti $ "Env.VIRTUAL_HOST" "," }}
+##
+{{ range $host, $containers := groupBy $ "Env.VIRTUAL_PATH" }}
 
 	{{ range $index, $value := $containers }}
 
@@ -41,45 +39,53 @@ server {
 			{{ end }}
 		{{ end }}
 	}
+
 	{{ end }}
-
-	server {
-		gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
-
-		server_name {{ $host }};
-		proxy_buffering off;
-		error_log /proc/self/fd/2;
-		access_log /proc/self/fd/1;
-
-	{{ range $index, $value := $containers }}
-
-		location /{{ $value.Env.VIRTUAL_PATH }}/ {
-			
-
-			{{ if $value.Env.VIRTUAL_PATH_TARGET }}
-			proxy_pass http://{{$value.Name}}/{{$value.Env.VIRTUAL_PATH_TARGET}}/;
-			proxy_redirect http://{{ $host }}/{{ $value.Env.VIRTUAL_PATH }}/ /{{$value.Env.VIRTUAL_PATH_TARGET}}/;
-			{{ else }}
-			proxy_pass http://{{$value.Name}}/;
-			proxy_redirect http://{{ $host }}/{{ $value.Env.VIRTUAL_PATH }}/ /;
-			{{ end }}
-
-			
-			proxy_set_header Host $http_host;
-			proxy_set_header X-Real-IP $remote_addr;
-			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-			proxy_set_header X-Forwarded-Proto $scheme;
-
-			# HTTP 1.1 support
-			proxy_http_version 1.1;
-			proxy_set_header Connection "";
-
-			#Sockets
-			proxy_set_header Upgrade $http_upgrade;
-			proxy_set_header Connection "upgrade";
-		}
-		
-	{{ end }}
-	}
-
 {{ end }}
+##
+##
+server {
+	listen 80 default_server;
+	server_name _; # This is just an invalid value which will never trigger on a real hostname.
+	gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+	proxy_buffering off;
+	error_log /proc/self/fd/2;
+	access_log /proc/self/fd/1;
+
+
+	{{ range $host, $containers := groupBy $ "Env.VIRTUAL_PATH" }}
+	
+		{{ range $index, $value := $containers }}
+			##
+			location /{{ $value.Env.VIRTUAL_PATH }}/ {
+				
+
+				{{ if $value.Env.VIRTUAL_PATH_TARGET }}
+				proxy_pass http://{{$value.Name}}/{{$value.Env.VIRTUAL_PATH_TARGET}}/;
+				proxy_redirect http://{{ $host }}/{{ $value.Env.VIRTUAL_PATH }}/ /{{$value.Env.VIRTUAL_PATH_TARGET}}/;
+				{{ else }}
+				proxy_pass http://{{$value.Name}}/;
+				proxy_redirect http://{{ $host }}/{{ $value.Env.VIRTUAL_PATH }}/ /;
+				{{ end }}
+
+				
+				proxy_set_header Host $http_host;
+				proxy_set_header X-Real-IP $remote_addr;
+				proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+				proxy_set_header X-Forwarded-Proto $scheme;
+
+				# HTTP 1.1 support
+				proxy_http_version 1.1;
+
+				#Sockets
+				proxy_set_header Upgrade $http_upgrade;
+				proxy_set_header Connection $connection_upgrade;
+			}
+			
+		{{ end }}
+
+	{{ end }}
+
+
+}
