@@ -3,16 +3,16 @@ FROM jwilder/docker-gen
 ADD nginx.tmpl /etc/docker-gen/templates/nginx.tmpl
 
 #build
-#docker build -t docker-gen:1.1.0 .
+#docker build -t docker-gen:1.2.0 .
 
 # rebuild
-#docker rmi -f docker-gen:1.1.0 && docker build -t docker-gen:1.1.0 .
+#docker rmi -f docker-gen:1.2.0 && docker build -t docker-gen:1.2.0 .
 
 # debug run
-#docker run -it --rm --net=host --entrypoint=/bin/bash docker-gen:1.1.0 
+#docker run -it --rm --net=host --entrypoint=/bin/bash docker-gen:1.2.0 
 
 # export image
-#docker save docker-gen:1.1.0 | gzip -c > docker-gen.tar.gz
+#docker save docker-gen:1.2.0 | gzip -c > docker-gen.tar.gz
 
 # import image
 #gunzip -c docker-gen.tar.gz | docker load
@@ -35,7 +35,7 @@ ADD nginx.tmpl /etc/docker-gen/templates/nginx.tmpl
 #docker run --volumes-from nginx-proxy -v /var/run/docker.sock:/tmp/docker.sock:ro -v $(pwd):/etc/docker-gen/templates -t jwilder/docker-gen -notify-sighup nginx-proxy -watch /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
 
 #Prod
-#docker run -d --name dockergen --volumes-from nginx-proxy -v /var/run/docker.sock:/tmp/docker.sock:ro -v /etc/docker-gen/templates -t docker-gen:1.1.0 -notify-sighup nginx-proxy -watch /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
+#docker run -d --name dockergen --volumes-from nginx-proxy -v /var/run/docker.sock:/tmp/docker.sock:ro -v /etc/docker-gen/templates -t docker-gen:1.2.0 -notify-sighup nginx-proxy -watch /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
 
 
 #Usage
