@@ -39,4 +39,5 @@ ADD nginx.tmpl /etc/docker-gen/templates/nginx.tmpl
 
 
 #Usage
-#docker run -e VIRTUAL_HOST=wmaiz-v-sofa-int-05.dbc.zdf.de  -e VIRTUAL_PATH=lotto -e VIRTUAL_PATH_TARGET=newsflash/_design/app/_rewrite ...
+#this version doesnt support -e VIRTUAL_HOST=
+#docker run -e VIRTUAL_PATH=lotto -e VIRTUAL_PATH_TARGET=newsflash/_design/app/_rewrite ...

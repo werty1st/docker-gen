@@ -63,10 +63,10 @@ server {
 
 				{{ if $value.Env.VIRTUAL_PATH_TARGET }}
 				proxy_pass http://{{$value.Name}}/{{$value.Env.VIRTUAL_PATH_TARGET}}/;
-				proxy_redirect http://{{ $host }}/{{ $value.Env.VIRTUAL_PATH }}/ /{{$value.Env.VIRTUAL_PATH_TARGET}}/;
+				proxy_redirect http://{{$value.Name}}/{{$value.Env.VIRTUAL_PATH_TARGET}}/ /{{$value.Env.VIRTUAL_PATH_TARGET}}/;
 				{{ else }}
 				proxy_pass http://{{$value.Name}}/;
-				proxy_redirect http://{{ $host }}/{{ $value.Env.VIRTUAL_PATH }}/ /;
+				proxy_redirect default;
 				{{ end }}
 
 				
