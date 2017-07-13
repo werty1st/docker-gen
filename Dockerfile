@@ -1,4 +1,5 @@
 FROM jwilder/docker-gen
+
 LABEL Description="This image includes a modified template of jwilder/docker-gen's version.\
 It's used to generate one default v-host with multiple locations.\
 This is usefull if you want to host multiple services on one (sub-)domain.\
@@ -6,6 +7,7 @@ example.org/service1/\
 example.org/service2/\
 example.org/service3"
 
+LABEL maintainer="werty1st@gmail.com"
 
 ADD nginx.tmpl /etc/docker-gen/templates/nginx.tmpl
 
